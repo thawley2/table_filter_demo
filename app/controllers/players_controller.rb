@@ -1,15 +1,15 @@
 class PlayersController < ApplicationController
   before_action :set_player, only: %i[ show edit update destroy ]
-
+  include Filterable
+  
   # GET /players or /players.json
   def index
+    session['player_filters'] = {}
     @players = Player.all
   end
 
   def list
-    players = Player.includes(:team)
-    players = players.where('name ilike ?', "%#{params[:name]}%") if params[:name].present?
-    players = players.order("#{params[:column]} #{params[:direction]}")
+    players = filter!(Player)
     render(partial: 'players', locals: { players: players })
   end
 
